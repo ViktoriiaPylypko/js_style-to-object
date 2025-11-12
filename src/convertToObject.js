@@ -11,32 +11,27 @@ function convertToObject(sourceString) {
     return {};
   }
 
-  const result = {};
-  const cleaned = sourceString.replace(/\t/g, ' ');
-  const rules = cleaned.split(';');
+  return sourceString
+    .replace(/\t/g, ' ')
+    .split(';')
+    .map((rule) => rule.trim())
+    .filter((rule) => rule)
+    .reduce((cssProperties, rule) => {
+      const [property, ...valueParts] = rule.split(':');
 
-  for (let rule of rules) {
-    rule = rule.trim();
+      if (!valueParts.length) {
+        return cssProperties;
+      }
 
-    if (!rule) {
-      continue;
-    }
+      const key = property.trim();
+      const value = valueParts.join(':').replace(/^\s+|\s+$/g, '');
 
-    const [property, ...valueParts] = rule.split(':');
+      if (key && value) {
+        cssProperties[key] = value;
+      }
 
-    if (!valueParts.length) {
-      continue;
-    }
-
-    const key = property.trim();
-    const value = valueParts.join(':').replace(/^\s+|\s+$/g, '');
-
-    if (key && value) {
-      result[key] = value;
-    }
-  }
-
-  return result;
+      return cssProperties;
+    }, {});
 }
 
 module.exports = convertToObject;
